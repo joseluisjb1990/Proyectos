@@ -38,6 +38,9 @@ import Text.XML.HaXml.Parse
 
 type Evento = (Int, Int)
 
+convEvento :: Evento -> Int
+convEvento (x, y) = x + y
+
 type Event = (Int, Int, Bool, Int, Bool, Int, Int)
 
 --type PreprocFunction = Midi -> Midi
