@@ -1,0 +1,10 @@
+*.sf2
+*.hs~
+*.tar.gz
+*.o
+xml/
+xmlTodos/
+*.hi
+Main
+cosa.hs
+*.swp

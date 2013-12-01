@@ -1,12 +1,12 @@
 module Main where
 
-import Prelude hiding (init)
+import Prelude as Pre hiding (init)
 import Input
 import Euterpea hiding (Event)
 import Data.List
 import Data.Function
 import Data.Char as Char
-
+import Data.Map as Map
 -- Directorio predeterminado
 directorio :: String
 directorio = "./xml/"
@@ -25,13 +25,24 @@ componer = componer' directorio
 
 componer' :: String -> IO ()
 componer' dir = do
-  (seqs, filenames) <- loadMusicXmls dir
-  -- let modelo = ...
-  let composicion = foldr (\x acc -> (map (Char.chr . convEvento) x) : acc) [] seqs
-  putStrLn $ show composicion
+    (seqs, filenames) <- loadMusicXmls dir
+    -- let modelo = ...
+    let modelo = let secuencia = Pre.foldr(\x acc -> (Pre.map (convEvento) x) ++ acc) [] seqs in  [Map.fromList[("", length(secuencia))], Map.fromList(contarPares $ secuencia), Map.fromList(contarPares $ (zipWith (++) (secuencia) (tail $ secuencia)))]
+--     let composicion
+    putStrLn $ show modelo
+    putStrLn $ show seqs
 --   play $ sequenceToMusic composicion
 
-{- Recupera las diez secuencias más similares a la k-ésima secuencia 
+contarPares :: [[Char]] -> [([Char], Int)]
+contarPares xs = let listaOrd = sort $ xs in auxContarPares (tail $ listaOrd) (head $ listaOrd) []
+                      where
+                            auxContarPares [] _ auxLista    = auxLista
+                            auxContarPares xs y []          = auxContarPares xs y [(y,1)]
+                            auxContarPares (x:xs) y all@((_,n):auxLista)
+                                | x == y      = auxContarPares xs x ((x,n+1):auxLista)
+                                | otherwise   = auxContarPares xs x ((x,1):all)
+
+{- Recupera las diez secuencias más similares a la k-ésima secuencia
    de la colección musical en el directorio por defecto, donde la 
    colección musical ha sido ordenada en orden alfabético por el 
    nombre de archivo. Imprime una lista ordenada de las diez 
@@ -66,6 +77,6 @@ eventToNote e = note
   note = Prim (Note d (p,[]))
   
 sequenceToMusic :: [Evento] -> Music Note1
-sequenceToMusic es = line $ map eventToNote es
+sequenceToMusic es = line $ Pre.map eventToNote es
 
 main = componer
