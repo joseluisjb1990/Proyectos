@@ -2,4 +2,4 @@ all: Main.hs
 	 ghc -o music --make Main.hs
 
 clean:
-	$(RM) music
+	$(RM) music *.hs~ *.o *.hi
