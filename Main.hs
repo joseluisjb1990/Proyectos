@@ -6,7 +6,8 @@ import Euterpea hiding (Event)
 import Data.List
 import Data.Function
 import Data.Char as Char
-import Data.Map as Map
+import qualified Data.Map as Map
+import Data.Maybe as May
 -- Directorio predeterminado
 directorio :: String
 directorio = "./xml/"
@@ -26,12 +27,25 @@ componer = componer' directorio
 componer' :: String -> IO ()
 componer' dir = do
     (seqs, filenames) <- loadMusicXmls dir
-    -- let modelo = ...
     let modelo = let secuencia = Pre.foldr(\x acc -> (Pre.map (convEvento) x) ++ acc) [] seqs in  [Map.fromList[("", length(secuencia))], Map.fromList(contarPares $ secuencia), Map.fromList(contarPares $ (zipWith (++) (secuencia) (tail $ secuencia)))]
---     let composicion
+    let composicion = producirLetra "652" modelo
     putStrLn $ show modelo
-    putStrLn $ show seqs
+    putStrLn $ show composicion
 --   play $ sequenceToMusic composicion
+
+producirLetra :: [Char] -> [Map.Map [Char] Int] -> [Char]
+producirLetra ant modelo = let (listaValores, cant,numNormalizado) = (Map.toAscList $ (modelo !! 1), snd . head $ (Map.toAscList $ (modelo !! 0)), (sum $ Pre.map (\ (x,y) -> ((fromIntegral (y) * 0.3) / fromIntegral(cant)) + (buscarDoble x)) (listaValores))) in buscarValor (generarRandom) (Pre.map (\ (x,y) -> (x,(((fromIntegral (y) * 0.3) / fromIntegral(cant)) + (buscarDoble x)) / numNormalizado)) (listaValores))
+                                where
+                                    buscarDoble clave = let (valorDoble, valorInd) = (Map.lookup (ant++clave) (modelo !! 2), Map.lookup ant (modelo !! 1)) in if May.isNothing $ valorDoble then 0.0 else (0.7 * (fromIntegral(fromJust $ valorDoble)) / (fromIntegral(fromJust $ valorInd)))
+                                    buscarValor random lista = auxBuscarValor random lista 0.0
+                                        where
+                                            auxBuscarValor random ((x,y):xs) acc
+                                                | random < y + acc  = x
+                                                | otherwise         = auxBuscarValor random xs (y + acc)
+
+
+generarRandom :: Float
+generarRandom = 0.8432
 
 contarPares :: [[Char]] -> [([Char], Int)]
 contarPares xs = let listaOrd = sort $ xs in auxContarPares (tail $ listaOrd) (head $ listaOrd) []
@@ -42,6 +56,7 @@ contarPares xs = let listaOrd = sort $ xs in auxContarPares (tail $ listaOrd) (h
                                 | x == y      = auxContarPares xs x ((x,n+1):auxLista)
                                 | otherwise   = auxContarPares xs x ((x,1):all)
 
+                                
 {- Recupera las diez secuencias más similares a la k-ésima secuencia
    de la colección musical en el directorio por defecto, donde la 
    colección musical ha sido ordenada en orden alfabético por el 
