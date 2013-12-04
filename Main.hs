@@ -8,6 +8,8 @@ import Data.Function
 import Data.Char as Char
 import qualified Data.Map as Map
 import Data.Maybe as May
+import System.Random
+
 -- Directorio predeterminado
 directorio :: String
 directorio = "./xml/"
@@ -28,24 +30,36 @@ componer' :: String -> IO ()
 componer' dir = do
     (seqs, filenames) <- loadMusicXmls dir
     let modelo = let secuencia = Pre.foldr(\x acc -> (Pre.map (convEvento) x) ++ acc) [] seqs in  [Map.fromList[("", length(secuencia))], Map.fromList(contarPares $ secuencia), Map.fromList(contarPares $ (zipWith (++) (secuencia) (tail $ secuencia)))]
-    let composicion = producirLetra "652" modelo
-    putStrLn $ show modelo
+    composicion <- generarSecuencia modelo
     putStrLn $ show composicion
---   play $ sequenceToMusic composicion
+    play $ sequenceToMusic composicion
 
-producirLetra :: [Char] -> [Map.Map [Char] Int] -> [Char]
-producirLetra ant modelo = let (listaValores, cant,numNormalizado) = (Map.toAscList $ (modelo !! 1), snd . head $ (Map.toAscList $ (modelo !! 0)), (sum $ Pre.map (\ (x,y) -> ((fromIntegral (y) * 0.3) / fromIntegral(cant)) + (buscarDoble x)) (listaValores))) in buscarValor (generarRandom) (Pre.map (\ (x,y) -> (x,(((fromIntegral (y) * 0.3) / fromIntegral(cant)) + (buscarDoble x)) / numNormalizado)) (listaValores))
+generarSecuencia modelo = do
+    listaRandom <- generarRandom
+    let listaSalida = Pre.map stringToEvento $ reverse $ auxGenerarSecuencia (Pre.map (\x -> producirLetraModelo modelo x) listaRandom) "" []
+    return(listaSalida)
+
+auxGenerarSecuencia (f:fs) ant aux = let valor = f ant in auxGenerarSecuencia fs valor (valor:aux)
+auxGenerarSecuencia [] _ aux = aux
+
+producirLetraModelo :: [Map.Map [Char] Int] -> Float -> ([Char] -> [Char])
+producirLetraModelo modelo random = producirLetra modelo random
+
+producirLetra :: [Map.Map [Char] Int] -> Float -> [Char] -> [Char]
+producirLetra modelo random ant = let (listaValores, cant,numNormalizado) = (Map.toAscList $ (modelo !! 1), snd . head $ (Map.toAscList $ (modelo !! 0)), (sum $ Pre.map (\ (x,y) -> ((fromIntegral (y) * 0.3) / fromIntegral(cant)) + (buscarDoble x)) (listaValores))) in buscarValor (Pre.map (\ (x,y) -> (x,(((fromIntegral (y) * 0.3) / fromIntegral(cant)) + (buscarDoble x)) / numNormalizado)) (listaValores))
                                 where
                                     buscarDoble clave = let (valorDoble, valorInd) = (Map.lookup (ant++clave) (modelo !! 2), Map.lookup ant (modelo !! 1)) in if May.isNothing $ valorDoble then 0.0 else (0.7 * (fromIntegral(fromJust $ valorDoble)) / (fromIntegral(fromJust $ valorInd)))
-                                    buscarValor random lista = auxBuscarValor random lista 0.0
+                                    buscarValor lista = auxBuscarValor random lista 0.0
                                         where
                                             auxBuscarValor random ((x,y):xs) acc
                                                 | random < y + acc  = x
                                                 | otherwise         = auxBuscarValor random xs (y + acc)
 
 
-generarRandom :: Float
-generarRandom = 0.8432
+generarRandom = do
+    gen <- newStdGen
+    let random = take longitud (randomRs (0.0,0.99) gen :: [Float])
+    return (random)
 
 contarPares :: [[Char]] -> [([Char], Int)]
 contarPares xs = let listaOrd = sort $ xs in auxContarPares (tail $ listaOrd) (head $ listaOrd) []
