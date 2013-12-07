@@ -38,8 +38,8 @@ import Text.XML.HaXml.Parse
 
 type Evento = (Int, Int)
 
-convEvento :: Evento -> [Char]
-convEvento (x, y) = (show x) ++ "," ++ (show y)
+eventoToString :: Evento -> [Char]
+eventoToString (x, y) = (show x) ++ "," ++ (show y)
 
 stringToEvento :: [Char] -> Evento
 stringToEvento xs = auxStringToEvento xs []
