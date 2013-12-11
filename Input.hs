@@ -38,15 +38,6 @@ import Text.XML.HaXml.Parse
 
 type Evento = (Int, Int)
 
-eventoToString :: Evento -> [Char]
-eventoToString (x, y) = (show x) ++ "," ++ (show y)
-
-stringToEvento :: [Char] -> Evento
-stringToEvento xs = auxStringToEvento xs []
-    where
-        auxStringToEvento (x:xs) aux
-            | x == ',' = (read aux :: Int, read xs :: Int)
-            |otherwise = auxStringToEvento xs (aux ++ [x])
             
 type Event = (Int, Int, Bool, Int, Bool, Int, Int)
 

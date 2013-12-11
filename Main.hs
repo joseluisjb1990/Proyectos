@@ -38,7 +38,7 @@ componer' dir = do
 
 generarSecuencia modelo = do
     listaRandom <- generarRandom longitud
-    let listaSalida = Pre.map stringToEvento $ reverse $ auxGenerarSecuencia
+    let listaSalida = Pre.map stringToEvento $ auxGenerarSecuencia
                         (Pre.map (\x -> producirLetraModelo modelo x) listaRandom) "" []
     return(listaSalida)
 
@@ -95,4 +95,5 @@ eventToNote e = note
 sequenceToMusic :: [Evento] -> Music Note1
 sequenceToMusic es = line $ Pre.map eventToNote es
 
+main :: IO ()
 main = componer
