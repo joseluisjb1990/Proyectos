@@ -33,9 +33,13 @@ componer' dir = do
     let modelo =    let secuencia = Pre.foldr(\x acc -> (Pre.map (eventoToString) x) ++ acc) [] seqs
                     in generarModelo secuencia
     composicion <- generarSecuencia modelo
-    putStrLn $ show composicion
+    putStrLn $ impimirComposicion composicion
     play $ sequenceToMusic composicion
 
+impimirComposicion :: [(Int,Int)] -> [Char]
+impimirComposicion = foldr (\x acc -> show(x) ++ '\n' : acc) ""
+
+generarSecuencia :: [Map.Map [Char] Int] -> IO [Evento]
 generarSecuencia modelo = do
     listaRandom <- generarRandom longitud
     let listaSalida = Pre.map stringToEvento $ auxGenerarSecuencia
@@ -63,10 +67,10 @@ buscar' dir pos = do
     let secuencia_modelos = foldr (\(secuencia, nombreArch) acc ->
                                   (generarModelo $ Pre.map eventoToString secuencia, nombreArch) : acc)
                                   [] seqfns_ordenados
-    
+                                  
     let modeloFijo = distanciaModeloFijo (fst $ (secuencia_modelos !! (pos -1)))
     
-    putStrLn $ secuenciaToString $ take 10 $
+    putStrLn $ secuenciaToString $ take 11 $
         sortBy  (\(n0,(x0,y0)) (n1,(x1,y1)) -> if x0 < x1 then LT else GT)
                 (Pre.zip [1..] (Pre.map (\ (modelo, nombreArch) ->
                                         (modeloFijo modelo, nombreArch)) secuencia_modelos))

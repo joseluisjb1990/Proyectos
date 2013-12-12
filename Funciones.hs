@@ -2,7 +2,7 @@
 -- |
 -- Module      :  Funciones.hs
 -- Autor       :  José Luis Jiménez 10-10839
---
+-- 
 -- Modulo en el que están todas las funciones usadas en Main.hs
 --
 -----------------------------------------------------------------------------
@@ -131,16 +131,13 @@ distanciaModeloFijo modelo = distanciaModelos modelo
 -}
 distanciaModelos :: [Map.Map [Char] Int] -> [Map.Map [Char] Int] -> Float
 distanciaModelos modeloA modeloB =
-    let (distancia0, distancia1, distanciaP) =
+    let (distancia1, distanciaP) =
             (
-            calcularDistancia0,
             calcularDistancia1,
             calcularDistanciaP
             )
-        in sqrt(distancia0 + distancia1 + distanciaP)
+        in sqrt(distancia1 + distanciaP)
             where
-                calcularDistancia0  = (fromIntegral (snd . head $ Map.toAscList $ (modeloB !! 0))
-                                     - fromIntegral (snd . head $ Map.toAscList $ (modeloA !! 0))) ** 2
                 calcularDistancia1  = distanciaMapa (modeloA !! 1) (modeloB !! 1)
                 calcularDistanciaP  = distanciaMapa (modeloA !! 2) (modeloB !! 2)
 
@@ -150,5 +147,5 @@ distanciaModelos modeloA modeloB =
     la fórmula explicada en la parte 6 del enunciado del proyecto.
 -}
 distanciaMapa :: Map.Map [Char] Int -> Map.Map [Char] Int -> Float
-distanciaMapa mapaA mapaB = fromIntegral $ sum $ Pre.foldl (\acc (clave, valor) -> valor^2 : acc)
-                                                    [] (Map.toAscList $ Map.unionWith (-) mapaA mapaB)
+distanciaMapa mapaA mapaB = fromIntegral $ Pre.foldl (\acc (clave, valor) -> valor^2 + acc)
+                                                    0 (Map.toAscList $ Map.unionWith (-) mapaA mapaB)
