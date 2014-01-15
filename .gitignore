@@ -1,5 +1,6 @@
 *.sf2
 *.hs~
+*.pl*
 *.tar.gz
 *.o
 xml/
