@@ -21,7 +21,7 @@ rey('<<').
 
 turno(jugador1).
 
-/*ficha(1, 2, '<').
+ficha(1, 2, '<').
 ficha(1, 4, '<').
 ficha(1, 6, '<').
 ficha(1, 8, '<').
@@ -33,14 +33,10 @@ ficha(3, 2, '<').
 ficha(3, 4, '<').
 ficha(3, 6, '<').
 ficha(3, 8, '<').
-ficha(4,7, '>').
-ficha(5,6, '>>').*/
 
-/*ficha(6, 1, '>').*/
+ficha(6, 1, '>').
 ficha(6, 3, '>').
-ficha(5, 2, '<').
-ficha(4, 1, '<').
-/*ficha(6, 5, '>').
+ficha(6, 5, '>').
 ficha(6, 7, '>').
 ficha(7, 2, '>').
 ficha(7, 4, '>').
@@ -49,16 +45,17 @@ ficha(7, 8, '>').
 ficha(8, 1, '>').
 ficha(8, 3, '>').
 ficha(8, 5, '>').
-ficha(8, 7, '>').*/
+ficha(8, 7, '>').
 
 jugar :- hacerPregunta, imprimirTablero, write('\n Turno del jugador 1 \n'), !.
 
-actualizarTurno(jugador1) :- retract(turno(jugador1)), assert(turno(jugador2)), imprimirTablero, write('\n Turno del jugador 2 \n').
-actualizarTurno(jugador2) :- retract(turno(jugador2)), assert(turno(jugador1)), imprimirTablero, write('\n Turno del jugador 1 \n').
-  
-jugada(X1,Y1,X2,Y2) :- X1 =\= X2 , Y1 =\= Y2 , posicionValida(X1,Y1), posicionValida(X2,Y2), ficha(X1,Y1,Z), turno(W), apply(W, [F,Z]), moverFicha(X1,Y1,X2,Y2,F), imprimirTablero ,not(juegoTerminado), actualizarTurno(W), !.
+actualizarTurno(jugador1)   :- retract(turno(jugador1)), assert(turno(jugador2)), not(juegoTerminado), write('\n Turno del jugador 2 \n'), jugarMaquina.
+actualizarTurno(jugador2)   :- retract(turno(jugador2)), assert(turno(jugador1)), not(juegoTerminado), write('\n Turno del jugador 1 \n').
+actualizarTurno(_)          :- turno(T), jugadorContrario(T,C), hayGanador(C), !. 
+
+jugada(X1,Y1,X2,Y2) :- X1 =\= X2 , Y1 =\= Y2 , posicionValida(X1,Y1), posicionValida(X2,Y2), ficha(X1,Y1,Z), turno(W), apply(W, [F,Z]), moverFicha(X1,Y1,X2,Y2,F), imprimirTablero, actualizarTurno(W), !.
 jugada(_,_,_,_)     :- ganador(G), hayGanador(G), !.
-jugada(_,_,_,_)     :- write('\n Movimiento Invalido \n').
+jugada(_,_,_,_)     :- write('\n Movimiento Invalido \n'), imprimirTablero.
 
 repetirJugada(X,Y)  :- Y2 is Y + 1, X2 is X + 1, comerDeNuevo(X,Y,X2,Y2).
 repetirJugada(X,Y)  :- Y2 is Y - 1, X2 is X + 1, comerDeNuevo(X,Y,X2,Y2).
@@ -144,10 +141,7 @@ imprimirLista(F, C) :- ficha(F,C,Z), rey(Z), write(Z), write('|  '), C1 is C + 1
 
 imprimirLista(F, C) :- write('  |  ') , C1 is C + 1, imprimirLista(F,C1).
 
-juegoTerminado  :-  turno(T), jugadorContrario(T,C), apply(C,[peon,P]),
-                    findall(X, ficha(X,_,P), L), length(L,N), N =:= 0,
-                    apply(C,[rey,P1]), findall(X1, ficha(X1,_,P1), L1),
-                    length(L1,N1), N1 =:= 0, assert(ganador(T)), !.
+juegoTerminado  :-  movimientosPosibles(L), length(L,N), N =:=0.
 
 hayGanador(jugador1)    :- write('\n Ha ganado el jugador 1 \n'), !.
 hayGanador(jugador2)    :- write('\n Ha ganado el jugador 2 \n'), !.
@@ -155,33 +149,62 @@ hayGanador(jugador2)    :- write('\n Ha ganado el jugador 2 \n'), !.
 jugadorContrario(jugador1,jugador2) :- !.
 jugadorContrario(jugador2,jugador1) :- !.
 
-casillaPermitida(_,ficha(X,Y)) :- posicionValida(X,Y), casillaVacia(X,Y).
-casillaPermitida(An,ficha(X,Y)) :- posicionValida(X,Y), verificarCasilla(X,Y,jugador2), verificarSiguiente(An,ficha(X,Y)).
+casillaPermitida(_,ficha(X,Y),vacia) :- posicionValida(X,Y), casillaVacia(X,Y).
+casillaPermitida(An,ficha(X,Y),comer) :- posicionValida(X,Y), verificarCasilla(X,Y,jugador2), verificarSiguiente(An,ficha(X,Y)).
 
-verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 =:= X1 + 1 , Y2 =:= Y1 + 1, X3 is X2 + 1 , Y3 is Y2 + 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
-verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 =:= X1 - 1 , Y2 =:= Y1 + 1, X3 is X2 - 1 , Y3 is Y2 + 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
-verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 =:= X1 + 1 , Y2 =:= Y1 - 1, X3 is X2 + 1 , Y3 is Y2 - 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
-verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 =:= X1 - 1 , Y2 =:= Y1 - 1, X3 is X2 - 1 , Y3 is Y2 - 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
+verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 > X1, Y2 > Y1, X3 is X2 + 1 , Y3 is Y2 + 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
+verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 < X1, Y2 > Y1, X3 is X2 - 1 , Y3 is Y2 + 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
+verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 > X1, Y2 < Y1, X3 is X2 + 1 , Y3 is Y2 - 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
+verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 < X1, Y2 < Y1, X3 is X2 - 1 , Y3 is Y2 - 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
 
-agregarFicha(An,Ac,Z,R) :- casillaPermitida(An,Ac), append(Z,[par(An,Ac)],R).
+agregarFicha(An,Ac,Z,R) :- casillaPermitida(An,Ac,P), append(Z,[par(An,Ac,P)],R).
 agregarFicha(_,_,Acc,Acc) :- !.
 
 movimientoPosible(ficha(X,Y,'>'),Z)   :- X1 is X - 1, Y1 is Y - 1,
                                          X2 is X - 1, Y2 is Y + 1,
                                          Z = [par(ficha(X,Y),ficha(X1,Y1)), par(ficha(X,Y),ficha(X2,Y2))].
                                          
-movimientoPosible(ficha(X,Y,'>>'),Z)  :- X1 is X - 1, Y1 is Y - 1,
-                                         X2 is X - 1, Y2 is Y + 1,
-                                         X3 is X + 1, Y3 is Y - 1,
-                                         X4 is X + 1, Y4 is Y + 1,
-                                         Z = [  par(ficha(X,Y),ficha(X1,Y1)),
-                                                par(ficha(X,Y),ficha(X2,Y2)),
-                                                par(ficha(X,Y),ficha(X3,Y3)),
-                                                par(ficha(X,Y),ficha(X4,Y4))
-                                                ].
+movimientoPosible(ficha(X,Y,'>>'),Z)  :-    agregarDerecha(X,Y,X,Y,[],R1), 
+                                            agregarIzquierda(X,Y,X,Y,R1,R2),
+                                            agregarAntiderecha(X,Y,X,Y,R2,R3),
+                                            agregarAntizquierda(X,Y,X,Y,R3,Z).
+
+agregarDerecha(X0,Y0,X,Y,E,S) :-  X1 is X + 1, Y1 is Y + 1, continuar(X0,Y0,X1,Y1,E,Aux,agregarDerecha), agregarLista(X0,Y0,X1,Y1,Aux,S), !.
+agregarIzquierda(X0,Y0,X,Y,E,S) :-  X1 is X + 1, Y1 is Y - 1, continuar(X0,Y0,X1,Y1,E,Aux, agregarIzquierda), agregarLista(X0,Y0,X1,Y1,Aux,S), !. 
+agregarAntiderecha(X0,Y0,X,Y,E,S) :-  X1 is X - 1, Y1 is Y + 1, continuar(X0,Y0,X1,Y1,E,Aux, agregarAntiderecha), agregarLista(X0,Y0,X1,Y1,Aux,S), !. 
+agregarAntizquierda(X0,Y0,X,Y,E,S) :-  X1 is X - 1, Y1 is Y - 1, continuar(X0,Y0,X1,Y1,E,Aux, agregarAntizquierda), agregarLista(X0,Y0,X1,Y1,Aux,S), !. 
+
+agregarLista(X0,Y0,X1,Y1,L,S) :- posicionValida(X1,Y1), append(L,[par(ficha(X0,Y0),ficha(X1,Y1))],S).
+agregarLista(_,_,_,_,L,L) :- !.
+
+continuar(X0,Y0,X,Y,E,S,F) :- posicionValida(X,Y), casillaVacia(X,Y), apply(F, [X0,Y0,X,Y,E,S]).
+continuar(_,_,_,_,E,E,_) :- !.
 
 verificarMovimientos([],Acc,Acc) :- !.
 verificarMovimientos([par(An,Ac) | Tail],Acc,R) :- agregarFicha(An,Ac, Acc, RAcc), verificarMovimientos(Tail, RAcc, R).
 
 listaMovimientos([],R,R) :- !.
 listaMovimientos([X | Tail],Z,S) :- apply(movimientoPosible,[X,L]), verificarMovimientos(L,[],R), append(Z,R,Aux), listaMovimientos(Tail, Aux,S), !.
+
+seleccionarRandom(L,S)    :-  random(R), length(L,N), F is 1/N, seleccionarElemento(L,R,F,S).
+
+seleccionarElemento([X | _ ], R, F,X) :- R < F.
+seleccionarElemento([_ | Tail], R, F,S) :- R >= F, N is F + F, seleccionarElemento(Tail, R, N, S).
+
+aplicarJugada(par(ficha(X1,Y1),ficha(X2,Y2))) :- jugada(X1,Y1,X2,Y2).
+
+moverMaquina :- movimientosPosibles(R), separarPorComer(R,[],[],V,C), seleccionarJugada(C,V,P) , aplicarJugada(P), !.
+
+seleccionarJugada([],V,S) :- seleccionarRandom(V,S), !.
+seleccionarJugada(C,_,S)  :- seleccionarRandom(C,S), !.
+
+separarPorComer([], AccV,AccC,AccV,AccC) :- !.
+separarPorComer([par(ficha(X,Y), ficha(X1,Y1), comer) | Tail],AccV,AccC,SV,SC) :- append(AccC,[par(ficha(X,Y), ficha(X1,Y1))],Aux), separarPorComer(Tail,AccV,Aux,SV,SC), !.
+separarPorComer([par(ficha(X,Y), ficha(X1,Y1), vacia) | Tail],AccV,AccC,SV,SC) :- append(AccV,[par(ficha(X,Y), ficha(X1,Y1))],Aux), separarPorComer(Tail,Aux,AccC,SV,SC), !.
+
+jugarMaquina :- jugador2(maquina), moverMaquina, !.
+jugarMaquina :- !.
+
+movimientosPosibles(R) :-   turno(T), apply(T,[peon,Peon]), findall(ficha(X,Y,Peon),ficha(X,Y,Peon),L1), 
+                            apply(T,[rey,Rey]), findall(ficha(X,Y,Rey),ficha(X,Y,Rey),L2), append(L1, L2, L), 
+                            listaMovimientos(L,[],R),!.
