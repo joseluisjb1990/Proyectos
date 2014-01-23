@@ -42,7 +42,7 @@ ficha(2, 7, '<').
 ficha(3, 2, '<').
 ficha(3, 4, '<').
 ficha(3, 6, '<').
-ficha(3, 6, '<').
+ficha(3, 8, '<').
 
 
 ficha(6, 1, '>').
@@ -170,7 +170,8 @@ verificarCasilla(X,Y,W) :-  apply(W, [peon, Z1]), not(ficha(X,Y,Z1)), apply(W, [
 %%% se encuentra ubicada en el camino diagonal inferior derecho. Ademas
 %%% verifica que este camino esta libre.
 diagonalDerecha(X1,Y1,X2,Y2)          :-  X2 > X1, Y2 > Y1, X3 is X2 - X1, Y3 is Y2 - Y1, 
-                                          Y3 =:= X3, X4 is X1 + 1, Y4 is Y1 + 1, caminoLibre(X4,Y4,X2,Y2,derecha).
+                                          Y3 =:= X3, X4 is X1 + 1, Y4 is Y1 + 1, 
+                                          caminoLibre(X4,Y4,X2,Y2,derecha).
 
 %%% Predicado que toma una posicion X,Y y verifica que la posicion X2, Y2
 %%% se encuentra ubicada en el camino diagonal inferior izquierdo. Ademas
@@ -181,21 +182,30 @@ diagonalIzquierda(X1,Y1,X2,Y2)        :-  X2 > X1, Y1 > Y2, X3 is X2 - X1, Y3 is
 %%% Predicado que toma una posicion X,Y y verifica que la posicion X2, Y2
 %%% se encuentra ubicada en el camino diagonal superior derecho. Ademas
 %%% verifica que este camino esta libre.
-antidiagonalDerecha(X1,Y1,X2,Y2)      :-  X1 > X2, Y2 > Y1, X3 is X1 - X2, Y3 is Y2 - Y1, Y3 =:= X3, X4 is X1 - 1, 
-                                          Y4 is Y1 + 1, caminoLibre(X4,Y4,X2,Y2,antiderecha).
+antidiagonalDerecha(X1,Y1,X2,Y2)      :-    X1 > X2, Y2 > Y1, X3 is X1 - X2, Y3 is Y2 - Y1, 
+                                            Y3 =:= X3, X4 is X1 - 1, Y4 is Y1 + 1, 
+                                            caminoLibre(X4,Y4,X2,Y2,antiderecha).
 
 %%% Predicado que toma una posicion X,Y y verifica que la posicion X2, Y2
 %%% se encuentra ubicada en el camino diagonal superior izquierdo. Ademas
 %%% verifica que este camino esta libre.
-antidiagonalIzquierda(X1,Y1,X2,Y2)    :-  X1 > X2, Y1 > Y2, X3 is X1 - X2, Y3 is Y1 - Y2, Y3 =:= X3, X4 is X1 - 1, 
-                                          Y4 is Y1 - 1, caminoLibre(X4,Y4,X2,Y2,antizquierda).
+antidiagonalIzquierda(X1,Y1,X2,Y2)    :-    X1 > X2, Y1 > Y2, X3 is X1 - X2, Y3 is Y1 - Y2, 
+                                            Y3 =:= X3, X4 is X1 - 1,  Y4 is Y1 - 1, 
+                                            caminoLibre(X4,Y4,X2,Y2,antizquierda).
 
 %%% Predicado para verificar que el camino marcado por X,Y -> X2,Y2 esta libre.
-caminoLibre(X,Y,X,Y,_)                  :- !.
-caminoLibre(X1,Y1,X2,Y2,derecha)        :- casillaVacia(X1,Y1), X3 is X1 + 1, Y3 is Y1 + 1, caminoLibre(X3,Y3,X2,Y2,derecha).
-caminoLibre(X1,Y1,X2,Y2,izquierda)      :- casillaVacia(X1,Y1), X3 is X1 + 1, Y3 is Y1 - 1, caminoLibre(X3,Y3,X2,Y2,izquierda).
-caminoLibre(X1,Y1,X2,Y2,antiderecha)    :- casillaVacia(X1,Y1), X3 is X1 - 1, Y3 is Y1 + 1, caminoLibre(X3,Y3,X2,Y2,antiderecha).
-caminoLibre(X1,Y1,X2,Y2,antizquierda)   :- casillaVacia(X1,Y1), X3 is X1 - 1, Y3 is Y1 - 1, caminoLibre(X3,Y3,X2,Y2,antizquierda).
+caminoLibre(X,Y,X,Y,_)                  :-  !.
+caminoLibre(X1,Y1,X2,Y2,derecha)        :-  casillaVacia(X1,Y1), X3 is X1 + 1, Y3 is Y1 + 1, 
+                                            caminoLibre(X3,Y3,X2,Y2,derecha).
+                                            
+caminoLibre(X1,Y1,X2,Y2,izquierda)      :-  casillaVacia(X1,Y1), X3 is X1 + 1, Y3 is Y1 - 1, 
+                                            caminoLibre(X3,Y3,X2,Y2,izquierda).
+                                            
+caminoLibre(X1,Y1,X2,Y2,antiderecha)    :-  casillaVacia(X1,Y1), X3 is X1 - 1, Y3 is Y1 + 1, 
+                                            caminoLibre(X3,Y3,X2,Y2,antiderecha).
+                                            
+caminoLibre(X1,Y1,X2,Y2,antizquierda)   :-  casillaVacia(X1,Y1), X3 is X1 - 1, Y3 is Y1 - 1, 
+                                            caminoLibre(X3,Y3,X2,Y2,antizquierda).
 
 %%% Verifica que una casilla esta vacia.
 casillaVacia(X,Y) :- not(ficha(X,Y,_)).
@@ -232,10 +242,21 @@ casillaPermitida(An,ficha(X,Y),comer)   :-  posicionValida(X,Y), verificarCasill
 
 %%% Verifica que la posicion siguiente a X2, Y2 es valida y esta vacia para que
 %%% el jugador de turno puede comer en X2, Y2 y saltar. 
-verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 > X1, Y2 > Y1, X3 is X2 + 1 , Y3 is Y2 + 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
-verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 < X1, Y2 > Y1, X3 is X2 - 1 , Y3 is Y2 + 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
-verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 > X1, Y2 < Y1, X3 is X2 + 1 , Y3 is Y2 - 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
-verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :- X2 < X1, Y2 < Y1, X3 is X2 - 1 , Y3 is Y2 - 1, posicionValida(X3,Y3), casillaVacia(X3,Y3).
+verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :-  X2 > X1, Y2 > Y1, X3 is X2 + 1 , 
+                                                    Y3 is Y2 + 1, posicionValida(X3,Y3), 
+                                                    casillaVacia(X3,Y3).
+                                                    
+verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :-  X2 < X1, Y2 > Y1, X3 is X2 - 1 , 
+                                                    Y3 is Y2 + 1, posicionValida(X3,Y3), 
+                                                    casillaVacia(X3,Y3).
+                                                    
+verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :-  X2 > X1, Y2 < Y1, X3 is X2 + 1 , 
+                                                    Y3 is Y2 - 1, posicionValida(X3,Y3), 
+                                                    casillaVacia(X3,Y3).
+                                                    
+verificarSiguiente(ficha(X1,Y1) , ficha(X2,Y2)) :-  X2 < X1, Y2 < Y1, X3 is X2 - 1 , 
+                                                    Y3 is Y2 - 1, posicionValida(X3,Y3), 
+                                                    casillaVacia(X3,Y3).
 
 %%% Si el movimiento de la ficha An a la ficha Ac es valido, inserta un
 %%% par(ficha(X,Y),ficha(X2,Y2)) dentro de la lista Z.
@@ -246,7 +267,10 @@ agregarFicha(_,_,Acc,Acc)   :- !.
 %%% que puede moverse el peon que esta en la posicion X,Y.
 movimientoPosible(ficha(X,Y,'>'),Z) :-  X1 is X - 1, Y1 is Y - 1,
                                         X2 is X - 1, Y2 is Y + 1,
-                                        Z = [par(ficha(X,Y),ficha(X1,Y1)), par(ficha(X,Y),ficha(X2,Y2))].
+                                        Z = [
+                                                par(ficha(X,Y),ficha(X1,Y1)), 
+                                                par(ficha(X,Y),ficha(X2,Y2))
+                                            ].
 
 %%% Retorna una lista con todos los pares posibles a los que puede moverse 
 %%% el rey que esta en la posicion X,Y.                                      
@@ -259,13 +283,20 @@ movimientoPosible(ficha(X,Y,'>>'),Z)    :-  agregarDerecha(X,Y,X,Y,[],R1),
 %%% todas las posiciones posibles a las que puede moverse un rey. Estos van
 %%% verificando posicion por posicion si la casilla esta libre hasta llegar al
 %%% fondo del tablero o encontrar otra ficha.
-agregarDerecha(X0,Y0,X,Y,E,S)       :-  X1 is X + 1, Y1 is Y + 1, continuar(X0,Y0,X1,Y1,E,Aux,agregarDerecha), 
+agregarDerecha(X0,Y0,X,Y,E,S)       :-  X1 is X + 1, Y1 is Y + 1, 
+                                        continuar(X0,Y0,X1,Y1,E,Aux,agregarDerecha), 
                                         agregarLista(X0,Y0,X1,Y1,Aux,S), !.
-agregarIzquierda(X0,Y0,X,Y,E,S)     :-  X1 is X + 1, Y1 is Y - 1, continuar(X0,Y0,X1,Y1,E,Aux, agregarIzquierda), 
-                                        agregarLista(X0,Y0,X1,Y1,Aux,S), !. 
-agregarAntiderecha(X0,Y0,X,Y,E,S)   :-  X1 is X - 1, Y1 is Y + 1, continuar(X0,Y0,X1,Y1,E,Aux, agregarAntiderecha), 
-                                        agregarLista(X0,Y0,X1,Y1,Aux,S), !. 
-agregarAntizquierda(X0,Y0,X,Y,E,S)  :-  X1 is X - 1, Y1 is Y - 1, continuar(X0,Y0,X1,Y1,E,Aux, agregarAntizquierda), 
+
+agregarIzquierda(X0,Y0,X,Y,E,S)     :-  X1 is X + 1, Y1 is Y - 1, 
+                                        continuar(X0,Y0,X1,Y1,E,Aux, agregarIzquierda), 
+                                        agregarLista(X0,Y0,X1,Y1,Aux,S), !.
+                                         
+agregarAntiderecha(X0,Y0,X,Y,E,S)   :-  X1 is X - 1, Y1 is Y + 1, 
+                                        continuar(X0,Y0,X1,Y1,E,Aux, agregarAntiderecha), 
+                                        agregarLista(X0,Y0,X1,Y1,Aux,S), !.
+                                         
+agregarAntizquierda(X0,Y0,X,Y,E,S)  :-  X1 is X - 1, Y1 is Y - 1, 
+                                        continuar(X0,Y0,X1,Y1,E,Aux, agregarAntizquierda), 
                                         agregarLista(X0,Y0,X1,Y1,Aux,S), !. 
 
 %%% Si la posicion X1, Y1 es valida (esta dentro del tablero y esta libre o 
@@ -284,7 +315,8 @@ continuar(_,_,_,_,E,E,_)    :- !.
 %%% en un turno. El predicado se encarga se filtrar estos movimientos y quedarse
 %%% con aquellos que de verdad resultan en un movimiento valido.
 verificarMovimientos([],Acc,Acc)                :-  !.
-verificarMovimientos([par(An,Ac) | Tail],Acc,R) :-  agregarFicha(An,Ac, Acc, RAcc), verificarMovimientos(Tail, RAcc, R).
+verificarMovimientos([par(An,Ac) | Tail],Acc,R) :-  agregarFicha(An,Ac, Acc, RAcc), 
+                                                    verificarMovimientos(Tail, RAcc, R).
 
 %%% Toma una lista con todas las fichas dentro del tablero y retorna todos los
 %%% movimientos que pueden hacer estas fichas si no existieran fichas
@@ -312,7 +344,8 @@ aplicarJugada(par(ficha(X1,Y1),ficha(X2,Y2))) :- jugada(X1,Y1,X2,Y2).
 %%% que puede comer. En caso de no hallar alguno, busca en la lista de
 %%% movimientos en los que no puede comer.
 %%% 4) Realiza la jugada seleccionada.
-moverMaquina :- movimientosPosibles(R), separarPorComer(R,[],[],V,C), seleccionarJugada(C,V,P) , aplicarJugada(P), !.
+moverMaquina    :-  movimientosPosibles(R), separarPorComer(R,[],[],V,C), 
+                    seleccionarJugada(C,V,P) , aplicarJugada(P), !.
 
 %%% Predicado para seleccionar primero una jugada de los movimientos 
 %%% en los que se puede comer. Si no encuentra, selecciona un movimiento
@@ -322,12 +355,15 @@ seleccionarJugada(C,_,S)  :- seleccionarRandom(C,S), !.
 
 %%% Toma una lista de judadas y la separa en dos listas. En una quedan los
 %%% movimientos en los que el jugador puede comer, y en la ontra en los que no.
-separarPorComer([], AccV,AccC,AccV,AccC)                                        :-  !.
-separarPorComer([par(ficha(X,Y), ficha(X1,Y1), comer) | Tail],AccV,AccC,SV,SC)  :-  append(AccC,[par(ficha(X,Y), ficha(X1,Y1))],Aux), 
-                                                                                    separarPorComer(Tail,AccV,Aux,SV,SC), !.
+separarPorComer([], AccV,AccC,AccV,AccC)    :-  !.
 
-separarPorComer([par(ficha(X,Y), ficha(X1,Y1), vacia) | Tail],AccV,AccC,SV,SC)  :-  append(AccV,[par(ficha(X,Y), ficha(X1,Y1))],Aux), 
-                                                                                    separarPorComer(Tail,Aux,AccC,SV,SC), !.
+separarPorComer([par(ficha(X,Y), ficha(X1,Y1), comer) | Tail],AccV,AccC,SV,SC)  
+                                            :-  append(AccC,[par(ficha(X,Y), ficha(X1,Y1))],Aux), 
+                                                separarPorComer(Tail,AccV,Aux,SV,SC), !.
+
+separarPorComer([par(ficha(X,Y), ficha(X1,Y1), vacia) | Tail],AccV,AccC,SV,SC)  
+                                            :-  append(AccV,[par(ficha(X,Y), ficha(X1,Y1))],Aux), 
+                                                separarPorComer(Tail,Aux,AccC,SV,SC), !.
 
 %%% Predicado que verifica si el jugador dos es una maquina y hace la jugada
 %%% automaticamente.
@@ -335,9 +371,10 @@ jugarMaquina    :-  jugador2(maquina), moverMaquina, !.
 jugarMaquina    :-  !.
 
 %%% Retorna todos los movimientos posibles del jugador de turno.
-movimientosPosibles(R)  :-  turno(T), apply(T,[peon,Peon]), findall(ficha(X,Y,Peon),ficha(X,Y,Peon),L1), 
-                            apply(T,[rey,Rey]), findall(ficha(X,Y,Rey),ficha(X,Y,Rey),L2), append(L1, L2, L), 
-                            listaMovimientos(L,[],R),!.
+movimientosPosibles(R)  :-  turno(T), 
+                            apply(T,[peon,Peon]), findall(ficha(X,Y,Peon),ficha(X,Y,Peon),L1), 
+                            apply(T,[rey,Rey]), findall(ficha(X,Y,Rey),ficha(X,Y,Rey),L2), 
+                            append(L1, L2, L), listaMovimientos(L,[],R),!.
 
 %%% Todos los predicados siguiente se encargan de imprimir la lista por pantalla.
 imprimirTablero    :-   write('\n'),
