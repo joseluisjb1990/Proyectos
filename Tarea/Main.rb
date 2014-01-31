@@ -1,6 +1,18 @@
 #!/usr/bin/env ruby
 
+
+#########################################
+### Elaborado por:                    ###
+###  		Joel Araujo     10-10797  ###
+### 		Jose Jimenez    10-10839  ###
+###         Jose Montenegro 10-10469  ###
+#########################################
+
+
+#Clase Padre Maquina, todas las demas maquinas heredan de ella
 class Maquina
+
+	#Diccionario de Estados que una maquina puede tener
 	@@NUM_ESTADO = { 1 => "inactiva", 2 => "procesando", 3 => "en espera", 4 =>"llena" }
 
 	attr_accessor :cicloActual
@@ -71,11 +83,12 @@ class Maquina
 end
 
 
+#Modulo que se encarga de la Cevada
 module Cevada
 
 	@@cevadaTotal = 0
 
-	def maximo(cevadaTotal)
+	def maximoCevada(cevadaTotal)
 		@@cevadaTotal = cevadaTotal
 	end
 
@@ -86,11 +99,12 @@ module Cevada
 end
 
 
+#Modulo que se encarga de la Mezcla de Arroz/Maiz
 module Mezcla
 
 	@@mezclaTotal = 0
 
-	def maximo(mezclaTotal)
+	def maximoMezcla(mezclaTotal)
 		@@mezclaTotal = mezclaTotal
 	end
 
@@ -101,11 +115,12 @@ module Mezcla
 end
 
 
+#Modulo que se encarga de la Lupulo
 module Lupulo
 
 	@@lupuloTotal = 0
 
-	def maximo(lupuloTotal)
+	def maximoLupulo(lupuloTotal)
 		@@lupuloTotal = lupuloTotal
 	end
 
@@ -116,11 +131,12 @@ module Lupulo
 end
 
 
+#Modulo que se encarga de la Levadura
 module Levadura
 
 	@@levaduraTotal = 0
 
-	def maximo(levaduraTotal)
+	def maximoLevadura(levaduraTotal)
 		@@levaduraTotal = levaduraTotal
 	end
 
@@ -130,15 +146,27 @@ module Levadura
 	end
 end
 
+#Modulo para inicializar los insumos de entrada
+module InicializarInsumos
+	include Cevada, Mezcla, Levadura, Lupulo
+
+	def maximoInsumos(cevadaMax,mezclaMax,levaduraMax,lupuloMax)
+		maximoCevada(cevadaMax)
+		maximoMezcla(mezclaMax)
+		maximoLevadura(levaduraMax)
+		maximoLupulo(lupuloMax)
+	end
+end
 
 
+#Clase de la Maquina "Silos de Cebada"
 class Silos < Maquina 
 	include Cevada
 
 
 	def initialize
 
-		super(cantMax = 400, cantPA = 0, desecho = 0, cicloMax = 1)
+		super(cantMax = 400, cantPA = 0, desecho = 0, cicloMax = 0)
 		@cevada = 400
 	end
 
@@ -153,7 +181,7 @@ class Silos < Maquina
 end
 
 
-
+#Clase de la Maquina "Molino"
 class Molino < Maquina
 
 	def initialize
@@ -164,6 +192,7 @@ class Molino < Maquina
 end
 
 
+#Clase de la Maquina "Paila de Mezcla"
 class PailaMezcla < Maquina
 	include Mezcla
 
@@ -184,6 +213,7 @@ class PailaMezcla < Maquina
 end
 
 
+#Clase de la Maquina "Cuba de Filtracion"
 class Cuba < Maquina
 
 	def initialize
@@ -194,7 +224,7 @@ class Cuba < Maquina
 end
 
 
-
+#Clase de la Maquina "Paila de Coccion"
 class PailaCoccion < Maquina
 	include Lupulo
 
@@ -216,15 +246,18 @@ class PailaCoccion < Maquina
 end
 
 
+#Clase de la Maquina "Tanque pre-Clarificador"
 class Tanque < Maquina
 
 	def initialize
 
-		super(cantMax = 35, porcPA = 35, desecho = 0.01, cicloMax = 1)
+		super(cantMax = 35, porcPA = 35, desecho = 0.01, cicloMax = 0)
 				
 	end 
 end
 
+
+#Clase de la Maquina "Enfiador"
 class Enfriador < Maquina
 	
 	def initialize
@@ -235,6 +268,7 @@ class Enfriador < Maquina
 end
 
 
+#Clase de la Maquina "TCC"
 class TCC < Maquina
 	include Levadura
 
@@ -256,6 +290,7 @@ class TCC < Maquina
 end
 
 
+#Clase de la Maquina "Filtro de Cerveza"
 class Filtro < Maquina
 	
 	def initialize
@@ -266,6 +301,7 @@ class Filtro < Maquina
 end
 
 
+#Clase de la Maquina "Tanques para Cerveza Filtrada"
 class CervezaFiltrada < Maquina
 	
 	def initialize
@@ -276,6 +312,7 @@ class CervezaFiltrada < Maquina
 end
 
 
+#Clase de la Maquina "Llenadora y Tapadora"
 class Empacador < Maquina
 	
 	def initialize
@@ -285,11 +322,30 @@ class Empacador < Maquina
 	end 
 end
 
+#####################################################
+###               Main del programa               ### 
+#####################################################
 
-#MAiNNNNNNNNNNNNNNN
 
-i = 0
+include InicializarInsumos
 
+unless ARGV.length == 5
+    puts "\n Cantidad de argumentos invalido, Forma Correcta: "
+    puts "\n ./main.rb <numero de ciclos> <cantidad cevada> <cantidad mezcla arroz/maiz> 
+         <cantidad de levadura> <cantidad de lupulo> \n\n"
+	exit
+end
+
+#Inicializamos las cantidades maximas de los insumos
+nCiclos     = ARGV[0].to_i
+cevadaMax   = ARGV[1].to_i
+mezclaMax   = ARGV[2].to_i
+levaduraMax = ARGV[3].to_i
+lupuloMax   = ARGV[4].to_i
+
+maximoInsumos(cevadaMax, mezclaMax, levaduraMax, lupuloMax)
+
+#Instanciamos las clases
 silos     = Silos.new
 
 molino    = Molino.new
@@ -324,17 +380,19 @@ empacador.maquinaA = cervezaF
 
 maquinas = [silos, molino, pailaM, cuba, pailaC, tanque, enfriador, tcc, filtro, cervezaF, empacador]
 
-
-nCiclos=20
 i=1
+#Ciclos que se recorren
 while i <= nCiclos
 	
-	print "CICLO ", i,"\n"
 
+	puts "\nInicio Ciclo <#{i}> \n\n"
+ 
 	for maq in maquinas
 		maq.procesar
 		puts maq
 	end
 	i += 1
+
+	puts "\nFin Ciclo <#{i}>"
 
 end
