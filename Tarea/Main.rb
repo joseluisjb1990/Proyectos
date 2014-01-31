@@ -30,13 +30,21 @@ class Maquina
 		@estado		 = 1
 		@maquinaA	 = nil
 		@cantProduc	 = 0
+		@prodAlmacen = 0		
 	end
 
 	def procesar
 			case @estado
 			when 1
-				if @maquinaA != nil					
-					if @maquinaA.getProvisiones(@cantPA) 
+				if @maquinaA != nil
+					if @prodAlmacen < @cantPA			
+						@prodAlmacen +=  @maquinaA.getProvisiones(@cantPA - @prodAlmacen) 
+						if @prodAlmacen == @cantPA
+							@estado = 4
+						else
+							@estado = 1	
+						end
+					else
 						@estado = 4
 					end
 				else
@@ -47,6 +55,7 @@ class Maquina
 				if @cicloActual == @cicloMax
 					@estado 	= 3
 					@cantProduc = @cantProduc + (@cantMax * (1 - @desecho))
+					@prodAlmacen = 0
 					@cicloActual = 0
 				end
 
@@ -69,17 +78,18 @@ class Maquina
 			when 3 
 				if cant <= @cantProduc
 					@cantProduc -= cant
-					true
+					return cant
 				else
-					self.estado = 1
-					false
+					out = @cantProduc
+					@cantProduc = 0
+					return out
 				end
-			else false
+			else 0
 		end	
 	end				
 	def to_s
 		estado = @@NUM_ESTADO[self.estado]
-		"Estado = " + estado + " Producto Actual = #@cantProduc"
+		"Estado = " + estado + " #@cantProduc #@prodAlmacen #@cantPA"
 	end
 end
 
@@ -175,7 +185,7 @@ class Silos < Maquina
 
 		estadoAn = @estado
 		super
-		if (estadoAn == 2 && @estado == 3)
+		if (estadoAn == 4 && @estado == 3)
 			procesaInsumo
 		end
 	end 
@@ -316,10 +326,29 @@ end
 #Clase de la Maquina "Llenadora y Tapadora"
 class Empacador < Maquina
 	
+	attr_accessor :hayProducto
 	def initialize
 
 		super(cantMax = 50, porcPA = 50, desecho = 0, cicloMax = 2)
-					
+		@hayProducto = false
+	end
+
+	def procesar
+
+		estadoAn = @estado
+		super
+		if (estadoAn == 2 && @estado == 3)
+			puts @cantProduc
+			@hayProducto = true
+		end
+	end
+
+	def obtenerTotal
+
+		prodTotal = @cantProduc
+		@cantProduc = 0
+		@hayProducto = false
+		return prodTotal
 	end
 end
 
@@ -382,18 +411,23 @@ empacador.maquinaA = cervezaF
 maquinas = [silos, molino, pailaM, cuba, pailaC, tanque, enfriador, tcc, filtro, cervezaF, empacador]
 
 i=1
+prodTotal = 0
 #Ciclos que se recorren
 while i <= nCiclos
 	
 
 	puts "\nInicio Ciclo <#{i}> \n\n"
- 
 	for maq in maquinas
 		maq.procesar
 		puts maq
+
+	end
+	if (empacador.hayProducto)
+		prodTotal += empacador.obtenerTotal
 	end
 	i += 1
 
+	puts "Producto total = ", prodTotal
 	puts "\nFin Ciclo <#{i}>"
 
 end
