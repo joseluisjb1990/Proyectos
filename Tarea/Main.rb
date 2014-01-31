@@ -23,7 +23,7 @@ class Maquina
 	def initialize (cantMax, cantPA, desecho, cicloMax)
 
 		@cantMax 	 = cantMax
-			    @cantPA		 = cantPA
+		@cantPA		 = cantPA
 		@desecho 	 = desecho
 		@cicloMax	 = cicloMax
 		@cicloActual = 0
@@ -46,7 +46,7 @@ class Maquina
 				@cicloActual += 1
 				if @cicloActual == @cicloMax
 					@estado 	= 3
-					@cantProduc = @cantMax * (1 - @desecho)
+					@cantProduc = @cantProduc + (@cantMax * (1 - @desecho))
 					@cicloActual = 0
 				end
 
@@ -56,6 +56,7 @@ class Maquina
 				end
 			when 4
 				if @cicloMax == 0
+					@cantProduc = @cantProduc + @cantMax * (1 - @desecho)
 					@estado = 3
 				else
 					@estado = 2
@@ -319,7 +320,7 @@ class Empacador < Maquina
 
 		super(cantMax = 50, porcPA = 50, desecho = 0, cicloMax = 2)
 					
-	end 
+	end
 end
 
 #####################################################
