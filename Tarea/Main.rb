@@ -11,7 +11,7 @@ class Maquina
 	def initialize (cantMax, cantPA, desecho, cicloMax)
 
 		@cantMax 	 = cantMax
-	    @cantPA		 = cantPA
+			    @cantPA		 = cantPA
 		@desecho 	 = desecho
 		@cicloMax	 = cicloMax
 		@cicloActual = 0
@@ -21,7 +21,7 @@ class Maquina
 	end
 
 	def procesar
-		case @estado
+			case @estado
 			when 1
 				if @maquinaA != nil					
 					if @maquinaA.getProvisiones(@cantPA) 
@@ -43,7 +43,11 @@ class Maquina
 					@estado = 1
 				end
 			when 4
-				@estado = 2
+				if @cicloMax == 0
+					@estado = 3
+				else
+					@estado = 2
+				end
 		end
 	end	
 
@@ -75,8 +79,9 @@ module Cevada
 		@@cevadaTotal = cevadaTotal
 	end
 
-	def procesaCevada
+	def procesaInsumo
 		@@cevadaTotal = @@cevadaTotal - @cevada
+		puts "#@@cevadaTotal"
 	end   
 end
 
@@ -89,8 +94,9 @@ module Mezcla
 		@@mezclaTotal = mezclaTotal
 	end
 
-	def procesaMezcla
+	def procesaInsumo
 		@@mezclaTotal = @@mezclaTotal - @mezcla
+		puts "#@@mezclaTotal"
 	end   
 end
 
@@ -103,8 +109,9 @@ module Lupulo
 		@@lupuloTotal = lupuloTotal
 	end
 
-	def procesaLupulo
+	def procesaInsumo
 		@@lupuloTotal = @@lupuloTotal - @lupulo
+		puts "#@@lupuloTotal"
 	end   
 end
 
@@ -117,10 +124,12 @@ module Levadura
 		@@levaduraTotal = levaduraTotal
 	end
 
-	def procesaCevada
+	def procesaInsumo
 		@@levaduraTotal = @@levaduraTotal - @levadura
-	end   
+		puts "#@@levaduraTotal"
+	end
 end
+
 
 
 class Silos < Maquina 
@@ -131,7 +140,15 @@ class Silos < Maquina
 
 		super(cantMax = 400, cantPA = 0, desecho = 0, cicloMax = 1)
 		@cevada = 400
+	end
 
+	def procesar
+
+		estadoAn = @estado
+		super
+		if (estadoAn == 2 && @estado == 3)
+			procesaInsumo
+		end
 	end 
 end
 
@@ -153,10 +170,17 @@ class PailaMezcla < Maquina
 	def initialize
 
 		super(cantMax = 150, cantPA = 150*0.6, desecho = 0, cicloMax = 2)
-		@mezcla	    = 0
+		@mezcla	    = 150*0.4	
+	end
 
-		
-	end 
+	def procesar
+
+		estadoAn = @estado
+		super
+		if (estadoAn == 2 && @estado == 3)
+			procesaInsumo
+		end
+	end
 end
 
 
@@ -179,7 +203,16 @@ class PailaCoccion < Maquina
 		super(cantMax = 70, porcPA = 70*0.975, desecho = 0.1, cicloMax = 3)
 		@lupulo 	= 70*0.025
 				
-	end 
+	end
+
+	def procesar
+
+		estadoAn = @estado
+		super
+		if (estadoAn == 2 && @estado == 3)
+			procesaInsumo
+		end
+	end
 end
 
 
@@ -210,6 +243,15 @@ class TCC < Maquina
 		super(cantMax = 200, porcPA = 200*0.99, desecho = 0.1, cicloMax = 10)
 		@levadura 	= 200*0.01
 
+	end
+
+	def procesar
+
+		estadoAn = @estado
+		super
+		if (estadoAn == 2 && @estado == 3)
+			procesaInsumo
+		end
 	end 
 end
 
@@ -242,10 +284,6 @@ class Empacador < Maquina
 					
 	end 
 end
-
-
-
-
 
 
 #MAiNNNNNNNNNNNNNNN
