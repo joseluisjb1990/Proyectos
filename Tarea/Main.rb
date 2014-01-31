@@ -16,25 +16,32 @@ class Maquina
 	@@NUM_ESTADO = { 1 => "inactiva", 2 => "procesando", 3 => "en espera", 4 =>"llena" }
 
 	attr_accessor :cicloActual
-	attr_accessor :pAnterior
 	attr_accessor :estado
 	attr_accessor :maquinaA
 
-	def initialize (cantMax, cantPA, desecho, cicloMax)
-
-		@cantMax 	 = cantMax
-		@cantPA		 = cantPA
-		@desecho 	 = desecho
-		@cicloMax	 = cicloMax
-		@cicloActual = 0
-		@estado		 = 1
-		@maquinaA	 = nil
-		@cantProduc	 = 0
-		@prodAlmacen = 0		
+	def initialize (nombreMaquina, cantMax, cantPA, desecho, cicloMax)
+		@nombreMaquina = nombreMaquina
+		@cantMax 	   = cantMax
+		@cantPA		   = cantPA
+		@desecho 	   = desecho
+		@cicloMax	   = cicloMax
+		@cicloActual   = 0
+		@estado		   = 1
+		@maquinaA	   = nil
+		@cantProduc	   = 0
+		@prodAlmacen   = 0
 	end
 
+	#def to_s
+	#	puts "Maquina = <#{@nombreMaquina}>"
+	#	puts "Estado  = <#{@estado}>"
+	#end 
+
+	#Se encarga de realizar todo los movimientos posibles de una maquina
 	def procesar
 			case @estado
+
+			#Estado = Inactiva, la maquina se llena	
 			when 1
 				if @maquinaA != nil
 					if @prodAlmacen < @cantPA			
@@ -50,6 +57,8 @@ class Maquina
 				else
 					@estado = 4
 				end
+
+			#Estado = Procesando, la maquina esta procesando su insumo
 			when 2
 				@cicloActual += 1
 				if @cicloActual == @cicloMax
@@ -59,10 +68,14 @@ class Maquina
 					@cicloActual = 0
 				end
 
+			#Estado = En espera, la maquina esta esperando a que la 
+			#proxima maquina este inactiva para podor darle insumos
 			when 3
 				if @cantProduc == 0
 					@estado = 1
 				end
+
+			#Estado = Lleno, la maquina esta lista para procesar su
 			when 4
 				if @cicloMax == 0
 					@cantProduc = @cantProduc + @cantMax * (1 - @desecho)
@@ -73,6 +86,7 @@ class Maquina
 		end
 	end	
 
+	#Revisa si la maquina anterior tiene insumos para suministrarle
 	def getProvisiones(cant)
 		case @estado
 			when 3 
@@ -94,19 +108,23 @@ class Maquina
 end
 
 
-#Modulo que se encarga de la Cevada
-module Cevada
+#Modulo que se encarga de la Cebada
+module Cebada
 
-	@@cevadaTotal = 0
+	@@cebadaTotal = 0
 
-	def maximoCevada(cevadaTotal)
-		@@cevadaTotal = cevadaTotal
+	def maximoCebada(cebadaTotal)
+		@@cebadaTotal = cebadaTotal
 	end
 
 	def procesaInsumo
-		@@cevadaTotal = @@cevadaTotal - @cevada
-		puts "#@@cevadaTotal"
+		@@cebadaTotal = @@cebadaTotal - @cebada
+		puts "#@@cebadaTotal"
 	end   
+
+	def printCebada
+		puts "Cebada Sobrante = #{@@cebadaTotal}"
+	end
 end
 
 
@@ -123,6 +141,10 @@ module Mezcla
 		@@mezclaTotal = @@mezclaTotal - @mezcla
 		puts "#@@mezclaTotal"
 	end   
+
+	def printMezcla
+		puts "Mezcla Sobrante = #{@@mezclaTotal}"
+	end
 end
 
 
@@ -138,7 +160,11 @@ module Lupulo
 	def procesaInsumo
 		@@lupuloTotal = @@lupuloTotal - @lupulo
 		puts "#@@lupuloTotal"
-	end   
+	end  
+
+	def printLupulo
+		puts "Lupulo Sobrante = #{@@lupuloTotal}"
+	end 
 end
 
 
@@ -155,34 +181,45 @@ module Levadura
 		@@levaduraTotal = @@levaduraTotal - @levadura
 		puts "#@@levaduraTotal"
 	end
+
+	def printLevadura
+		puts "Levadura Sobrante = #{@@levaduraTotal}"
+	end
 end
 
 #Modulo para inicializar los insumos de entrada
 module InicializarInsumos
-	include Cevada, Mezcla, Levadura, Lupulo
+	include Cebada, Mezcla, Levadura, Lupulo
 
-	def maximoInsumos(cevadaMax,mezclaMax,levaduraMax,lupuloMax)
-		maximoCevada(cevadaMax)
+	def maximoInsumos(cebadaMax,mezclaMax,levaduraMax,lupuloMax)
+		maximoCebada(cebadaMax)
 		maximoMezcla(mezclaMax)
 		maximoLevadura(levaduraMax)
 		maximoLupulo(lupuloMax)
+	end
+
+	def printSobrantes
+		printCebada
+		printLupulo
+		printLevadura
+		printMezcla
 	end
 end
 
 
 #Clase de la Maquina "Silos de Cebada"
 class Silos < Maquina 
-	include Cevada
+	include Cebada
 
 
 	def initialize
-
-		super(cantMax = 400, cantPA = 0, desecho = 0, cicloMax = 0)
-		@cevada = 400
+		super(nombreMaquina = "Silos de Cebada", 
+			  cantMax = 400, cantPA = 0, desecho = 0, cicloMax = 0)
+		@cebada = 400
 	end
 
-	def procesar
 
+	def procesar
 		estadoAn = @estado
 		super
 		if (estadoAn == 4 && @estado == 3)
@@ -195,10 +232,10 @@ end
 #Clase de la Maquina "Molino"
 class Molino < Maquina
 
-	def initialize
 
-		super(cantMax = 100, cantPA = 100, desecho = 0.02, cicloMax = 1)
-		
+	def initialize
+		super(nombreMaquina = "Molino", 
+		      cantMax = 100, cantPA = 100, desecho = 0.02, cicloMax = 1)	
 	end 
 end
 
@@ -207,14 +244,15 @@ end
 class PailaMezcla < Maquina
 	include Mezcla
 
-	def initialize
 
-		super(cantMax = 150, cantPA = 150*0.6, desecho = 0, cicloMax = 2)
+	def initialize
+		super(nombreMaquina = "Paila de Mezcla", 
+			  cantMax = 150, cantPA = 150*0.6, desecho = 0, cicloMax = 2)
 		@mezcla	    = 150*0.4	
 	end
 
-	def procesar
 
+	def procesar
 		estadoAn = @estado
 		super
 		if (estadoAn == 2 && @estado == 3)
@@ -227,10 +265,10 @@ end
 #Clase de la Maquina "Cuba de Filtracion"
 class Cuba < Maquina
 
-	def initialize
 
-		super(cantMax = 135, porcPA = 135, desecho = 0.35, cicloMax = 2)
-			
+	def initialize
+		super(nombreMaquina = "Cuba de Filtracion", 
+			  cantMax = 135, porcPA = 135, desecho = 0.35, cicloMax = 2)		
 	end 
 end
 
@@ -239,15 +277,16 @@ end
 class PailaCoccion < Maquina
 	include Lupulo
 
-	def initialize
 
-		super(cantMax = 70, porcPA = 70*0.975, desecho = 0.1, cicloMax = 3)
+	def initialize
+		super(nombreMaquina = "Paila de Coccion", 
+			  cantMax = 70, porcPA = 70*0.975, desecho = 0.1, cicloMax = 3)
 		@lupulo 	= 70*0.025
 				
 	end
 
-	def procesar
 
+	def procesar
 		estadoAn = @estado
 		super
 		if (estadoAn == 2 && @estado == 3)
@@ -260,10 +299,10 @@ end
 #Clase de la Maquina "Tanque pre-Clarificador"
 class Tanque < Maquina
 
-	def initialize
 
-		super(cantMax = 35, porcPA = 35, desecho = 0.01, cicloMax = 0)
-				
+	def initialize
+		super(nombreMaquina = "Tanque pre-Clarificador", 
+			  cantMax = 35, porcPA = 35, desecho = 0.01, cicloMax = 0)			
 	end 
 end
 
@@ -271,11 +310,12 @@ end
 #Clase de la Maquina "Enfiador"
 class Enfriador < Maquina
 	
-	def initialize
 
-		super(cantMax = 60, porcPA = 60, desecho = 0, cicloMax = 2)
-						
+	def initialize
+		super(nombreMaquina = "Enfriador", 
+			  cantMax = 60, porcPA = 60, desecho = 0, cicloMax = 2)					
 	end 
+
 end
 
 
@@ -283,43 +323,47 @@ end
 class TCC < Maquina
 	include Levadura
 
-	def initialize
 
-		super(cantMax = 200, porcPA = 200*0.99, desecho = 0.1, cicloMax = 10)
+	def initialize
+		super(nombreMaquina = "TCC", 
+			  cantMax = 200, porcPA = 200*0.99, desecho = 0.1, cicloMax = 10)
 		@levadura 	= 200*0.01
 
 	end
 
-	def procesar
 
+	def procesar
 		estadoAn = @estado
 		super
 		if (estadoAn == 2 && @estado == 3)
 			procesaInsumo
 		end
 	end 
+
 end
 
 
 #Clase de la Maquina "Filtro de Cerveza"
 class Filtro < Maquina
 	
-	def initialize
 
-		super(cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)
-				
+	def initialize
+		super(nombreMaquina = "Filtro de Cerveza", 
+			  cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)			
 	end 
+
 end
 
 
 #Clase de la Maquina "Tanques para Cerveza Filtrada"
 class CervezaFiltrada < Maquina
 	
-	def initialize
 
-		super(cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)
-					
+	def initialize
+		super(nombreMaquina = "Tanques para Cerveza Filtrada", 
+			  cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)				
 	end 
+
 end
 
 
@@ -328,13 +372,13 @@ class Empacador < Maquina
 	
 	attr_accessor :hayProducto
 	def initialize
-
-		super(cantMax = 50, porcPA = 50, desecho = 0, cicloMax = 2)
+		super(nombreMaquina = "Llenadora y Tapadora", 
+			  cantMax = 50, porcPA = 50, desecho = 0, cicloMax = 2)	
 		@hayProducto = false
 	end
 
-	def procesar
 
+	def procesar
 		estadoAn = @estado
 		super
 		if (estadoAn == 2 && @estado == 3)
@@ -343,8 +387,8 @@ class Empacador < Maquina
 		end
 	end
 
-	def obtenerTotal
 
+	def obtenerTotal
 		prodTotal = @cantProduc
 		@cantProduc = 0
 		@hayProducto = false
@@ -361,45 +405,45 @@ include InicializarInsumos
 
 unless ARGV.length == 5
     puts "\n Cantidad de argumentos invalido, Forma Correcta: "
-    puts "\n ./main.rb <numero de ciclos> <cantidad cevada> <cantidad mezcla arroz/maiz> 
+    puts "\n ./main.rb <numero de ciclos> <cantidad cebada> <cantidad mezcla arroz/maiz> 
          <cantidad de levadura> <cantidad de lupulo> \n\n"
 	exit
 end
 
 #Inicializamos las cantidades maximas de los insumos
 nCiclos     = ARGV[0].to_i
-cevadaMax   = ARGV[1].to_i
+cebadaMax   = ARGV[1].to_i
 mezclaMax   = ARGV[2].to_i
 levaduraMax = ARGV[3].to_i
 lupuloMax   = ARGV[4].to_i
 
-maximoInsumos(cevadaMax, mezclaMax, levaduraMax, lupuloMax)
+maximoInsumos(cebadaMax, mezclaMax, levaduraMax, lupuloMax)
 
 #Instanciamos las clases
-silos     = Silos.new
+silos = Silos.new
 
-molino    = Molino.new
+molino = Molino.new
 molino.maquinaA = silos
 
-pailaM    = PailaMezcla.new
+pailaM = PailaMezcla.new
 pailaM.maquinaA = molino
 
-cuba 	  = Cuba.new
+cuba = Cuba.new
 cuba.maquinaA = pailaM
 
-pailaC    = PailaCoccion.new
+pailaC = PailaCoccion.new
 pailaC.maquinaA = cuba
 
-tanque    = Tanque.new
+tanque = Tanque.new
 tanque.maquinaA = pailaC
 
 enfriador = Enfriador.new
 enfriador.maquinaA = tanque
 
-tcc 	  	= TCC.new
+tcc = TCC.new
 tcc.maquinaA = enfriador
 
-filtro    = Filtro.new
+filtro = Filtro.new
 filtro.maquinaA = tcc
 
 cervezaF  = CervezaFiltrada.new
@@ -410,12 +454,12 @@ empacador.maquinaA = cervezaF
 
 maquinas = [silos, molino, pailaM, cuba, pailaC, tanque, enfriador, tcc, filtro, cervezaF, empacador]
 
+
 i=1
 prodTotal = 0
 #Ciclos que se recorren
 while i <= nCiclos
 	
-
 	puts "\nInicio Ciclo <#{i}> \n\n"
 	for maq in maquinas
 		maq.procesar
@@ -425,9 +469,14 @@ while i <= nCiclos
 	if (empacador.hayProducto)
 		prodTotal += empacador.obtenerTotal
 	end
-	i += 1
 
 	puts "Producto total = ", prodTotal
 	puts "\nFin Ciclo <#{i}>"
-
+	i += 1
 end
+
+#Print Final
+puts "Inicio Planta"
+puts "Ciclos= #{nCiclos}"
+puts "Cerveza Total = "
+puts printSobrantes
