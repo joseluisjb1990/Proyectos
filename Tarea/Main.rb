@@ -5,7 +5,7 @@
 ### Elaborado por:                    ###
 ###  		Joel Araujo     10-10797  ###
 ### 		Jose Jimenez    10-10839  ###
-###         Jose Montenegro 10-106    ###
+###         Jose Montenegro 10-10469  ###
 #########################################
 
 
@@ -351,12 +351,15 @@ i=1
 #Ciclos que se recorren
 while i <= nCiclos
 	
-	print "CICLO ", i,"\n"
+
+	puts "\nInicio Ciclo <#{i}> \n\n"
  
 	for maq in maquinas
 		maq.procesar
 		puts maq
 	end
 	i += 1
+
+	puts "\nFin Ciclo <#{i}>"
 
 end
