@@ -402,7 +402,7 @@ class Empacador < Maquina
 	def procesar
 		estadoAn = @estado
 		super
-		if (estadoAn == 1 && @estado == 4)
+		if (estadoAn == 2 && @estado == 3)
 			puts @cantProduc
 			@hayProducto = true
 		end
