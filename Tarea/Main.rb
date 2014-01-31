@@ -79,6 +79,7 @@ class Maquina
 			when 4
 				if @cicloMax == 0
 					@cantProduc = @cantProduc + @cantMax * (1 - @desecho)
+					@prodAlmacen = 0
 					@estado = 3
 				else
 					@estado = 2
