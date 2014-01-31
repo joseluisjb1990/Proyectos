@@ -23,13 +23,12 @@ class Maquina
 	def procesar
 		case @estado
 			when 1
-				if @maquinaA != nil
-					@cantPA += @maquinaA.getProvisiones(@cantMax)
-					if @cantPA >= @cantMax
+				if @maquinaA != nil					
+					if @maquinaA.getProvisiones(@cantPA) 
 						@estado = 4
 					end
 				else
-					@estado = 2
+					@estado = 4
 				end
 			when 2
 				@cicloActual += 1
@@ -49,20 +48,21 @@ class Maquina
 	end	
 
 	def getProvisiones(cant)
-		case self.estado
+		case @estado
 			when 3 
 				if cant <= @cantProduc
 					@cantProduc -= cant
-					cant
+					true
 				else
 					self.estado = 1
+					false
 				end
-			else 0
+			else false
 		end	
 	end				
 	def to_s
 		estado = @@NUM_ESTADO[self.estado]
-		"Cantidad maxima = #Estado = " + estado + "\n Producto Actual = #@cantPA"
+		"Estado = " + estado + " Producto Actual = #@cantProduc"
 	end
 end
 
@@ -129,7 +129,7 @@ class Silos < Maquina
 
 	def initialize
 
-		super(cantMax = 400, cantPA = 0, desecho = 0, cicloMax = 0)
+		super(cantMax = 400, cantPA = 0, desecho = 0, cicloMax = 1)
 		@cevada = 400
 
 	end 
@@ -228,7 +228,7 @@ class CervezaFiltrada < Maquina
 	
 	def initialize
 
-		super(cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 0)
+		super(cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)
 					
 	end 
 end
@@ -287,10 +287,12 @@ empacador.maquinaA = cervezaF
 maquinas = [silos, molino, pailaM, cuba, pailaC, tanque, enfriador, tcc, filtro, cervezaF, empacador]
 
 
-nCiclos=1
+nCiclos=20
 i=1
 while i <= nCiclos
 	
+	print "CICLO ", i,"\n"
+
 	for maq in maquinas
 		maq.procesar
 		puts maq
