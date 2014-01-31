@@ -6,6 +6,7 @@ class Maquina
 	attr_accessor :cicloActual
 	attr_accessor :pAnterior
 	attr_accessor :estado
+	attr_accessor :maquinaA
 
 	def initialize (cantMax, cantPA, desecho, cicloMax)
 
@@ -15,12 +16,53 @@ class Maquina
 		@cicloMax	 = cicloMax
 		@cicloActual = 0
 		@estado		 = 1
-		
+		@maquinaA	 = nil
+		@cantProduc	 = 0
 	end
 
+	def procesar
+		case @estado
+			when 1
+				if @maquinaA != nil
+					@cantPA += @maquinaA.getProvisiones(@cantMax)
+					if @cantPA >= @cantMax
+						@estado = 4
+					end
+				else
+					@estado = 2
+				end
+			when 2
+				@cicloActual += 1
+				if @cicloActual == @cicloMax
+					@estado 	= 3
+					@cantProduc = @cantMax * (1 - @desecho)
+					@cicloActual = 0
+				end
+
+			when 3
+				if @cantProduc == 0
+					@estado = 1
+				end
+			when 4
+				@estado = 2
+		end
+	end	
+
+	def getProvisiones(cant)
+		case self.estado
+			when 3 
+				if cant <= @cantProduc
+					@cantProduc -= cant
+					cant
+				else
+					self.estado = 1
+				end
+			else 0
+		end	
+	end				
 	def to_s
-		estado = @@NUM_ESTADO[@estado]
-		"Cantidad maxima = #@cantMax\nDesecho = #@desecho \nCiclos = #@ciclos \nEstado = " + estado + "\nProducto Anterior = #@pAnterior"
+		estado = @@NUM_ESTADO[self.estado]
+		"Cantidad maxima = #Estado = " + estado + "\n Producto Actual = #@cantPA"
 	end
 end
 
@@ -111,7 +153,7 @@ class PailaMezcla < Maquina
 	def initialize
 
 		super(cantMax = 150, cantPA = 150*0.6, desecho = 0, cicloMax = 2)
-		@insumo	    = 0
+		@mezcla	    = 0
 
 		
 	end 
@@ -211,26 +253,48 @@ end
 i = 0
 
 silos     = Silos.new
+
 molino    = Molino.new
+molino.maquinaA = silos
+
 pailaM    = PailaMezcla.new
+pailaM.maquinaA = molino
+
 cuba 	  = Cuba.new
+cuba.maquinaA = pailaM
+
 pailaC    = PailaCoccion.new
+pailaC.maquinaA = cuba
+
 tanque    = Tanque.new
+tanque.maquinaA = pailaC
+
 enfriador = Enfriador.new
-tcc 	  = TCC.new
+enfriador.maquinaA = tanque
+
+tcc 	  	= TCC.new
+tcc.maquinaA = enfriador
+
 filtro    = Filtro.new
+filtro.maquinaA = tcc
+
 cervezaF  = CervezaFiltrada.new
+cervezaF.maquinaA = filtro
+
 empacador = Empacador.new
+empacador.maquinaA = cervezaF
 
 maquinas = [silos, molino, pailaM, cuba, pailaC, tanque, enfriador, tcc, filtro, cervezaF, empacador]
 
 
-nCiclos=5
-
-while i < nCiclos
+nCiclos=1
+i=1
+while i <= nCiclos
 	
-	
-
+	for maq in maquinas
+		maq.procesar
+		puts maq
+	end
 	i += 1
 
 end
