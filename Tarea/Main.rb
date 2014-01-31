@@ -97,6 +97,7 @@ class Maquina
 				else
 					out = @cantProduc
 					@cantProduc = 0
+					@estado = 1
 					return out
 				end
 			else 0
@@ -112,6 +113,8 @@ end
 #Modulo que se encarga de la Cebada
 module Cebada
 
+	class CebadaInsuficiente < RuntimeError; end
+
 	@@cebadaTotal = 0
 
 	def maximoCebada(cebadaTotal)
@@ -119,6 +122,9 @@ module Cebada
 	end
 
 	def procesaInsumo
+		if @cebada > @@cebadaTotal
+			raise CebadaInsuficiente
+		end
 		@@cebadaTotal = @@cebadaTotal - @cebada
 		puts "#@@cebadaTotal"
 	end   
@@ -132,6 +138,7 @@ end
 #Modulo que se encarga de la Mezcla de Arroz/Maiz
 module Mezcla
 
+	class MezclaInsuficiente < RuntimeError; end
 	@@mezclaTotal = 0
 
 	def maximoMezcla(mezclaTotal)
@@ -139,6 +146,9 @@ module Mezcla
 	end
 
 	def procesaInsumo
+		if @mezcla > @@mezclaTotal
+			raise MezclaInsuficiente
+		end
 		@@mezclaTotal = @@mezclaTotal - @mezcla
 		puts "#@@mezclaTotal"
 	end   
@@ -152,6 +162,8 @@ end
 #Modulo que se encarga de la Lupulo
 module Lupulo
 
+	class LupuloInsuficiente < RuntimeError; end
+
 	@@lupuloTotal = 0
 
 	def maximoLupulo(lupuloTotal)
@@ -159,6 +171,9 @@ module Lupulo
 	end
 
 	def procesaInsumo
+		if @lupulo > @@lupuloTotal
+			raise LupuloInsuficiente
+		end
 		@@lupuloTotal = @@lupuloTotal - @lupulo
 		puts "#@@lupuloTotal"
 	end  
@@ -172,6 +187,8 @@ end
 #Modulo que se encarga de la Levadura
 module Levadura
 
+	class LevaduraInsuficiente < RuntimeError; end
+
 	@@levaduraTotal = 0
 
 	def maximoLevadura(levaduraTotal)
@@ -179,6 +196,9 @@ module Levadura
 	end
 
 	def procesaInsumo
+		if @levadura > @@levaduraTotal
+			raise LevaduraInsuficiente
+		end
 		@@levaduraTotal = @@levaduraTotal - @levadura
 		puts "#@@levaduraTotal"
 	end
@@ -223,7 +243,7 @@ class Silos < Maquina
 	def procesar
 		estadoAn = @estado
 		super
-		if (estadoAn == 4 && @estado == 3)
+		if (estadoAn == 1 && @estado == 4)
 			procesaInsumo
 		end
 	end 
@@ -256,7 +276,7 @@ class PailaMezcla < Maquina
 	def procesar
 		estadoAn = @estado
 		super
-		if (estadoAn == 2 && @estado == 3)
+		if (estadoAn == 1 && @estado == 4)
 			procesaInsumo
 		end
 	end
@@ -290,7 +310,7 @@ class PailaCoccion < Maquina
 	def procesar
 		estadoAn = @estado
 		super
-		if (estadoAn == 2 && @estado == 3)
+		if (estadoAn == 1 && @estado == 4)
 			procesaInsumo
 		end
 	end
@@ -336,7 +356,7 @@ class TCC < Maquina
 	def procesar
 		estadoAn = @estado
 		super
-		if (estadoAn == 2 && @estado == 3)
+		if (estadoAn == 1 && @estado == 4)
 			procesaInsumo
 		end
 	end 
@@ -382,7 +402,7 @@ class Empacador < Maquina
 	def procesar
 		estadoAn = @estado
 		super
-		if (estadoAn == 2 && @estado == 3)
+		if (estadoAn == 1 && @estado == 4)
 			puts @cantProduc
 			@hayProducto = true
 		end
@@ -459,25 +479,42 @@ maquinas = [silos, molino, pailaM, cuba, pailaC, tanque, enfriador, tcc, filtro,
 i=1
 prodTotal = 0
 #Ciclos que se recorren
-while i <= nCiclos
-	
-	puts "\nInicio Ciclo <#{i}> \n\n"
-	for maq in maquinas
-		maq.procesar
-		puts maq
 
-	end
-	if (empacador.hayProducto)
-		prodTotal += empacador.obtenerTotal
-	end
+catch(:escape) do
+	while i <= nCiclos
+		
+		puts "\nInicio Ciclo <#{i}> \n\n"
+		for maq in maquinas
+			begin
+				maq.procesar
+			rescue CebadaInsuficiente => error
+				puts "\nSe termino la cebada mientras corrian los ciclos"
+				throw(:escape)
+			rescue LupuloInsuficiente => error
+				puts "\nSe termino el lupulo corrian los ciclos"
+				throw(:escape)
+			rescue MezclaInsuficiente => error
+				puts "\nSe termino la mezcla mientras corrian los ciclos"
+				throw(:escape)
+			rescue LevaduraInsuficiente => error
+				puts "\nSe termino la levadura mientras corrian los ciclos"
+				throw(:escape)
+			else
+				puts maq
+			end
 
-	puts "Producto total = ", prodTotal
-	puts "\nFin Ciclo <#{i}>"
-	i += 1
+		end
+		if (empacador.hayProducto)
+			prodTotal += empacador.obtenerTotal
+		end
+
+		puts "Producto total = ", prodTotal
+		puts "\nFin Ciclo <#{i}>"
+		i += 1
+	end
 end
 
 #Print Final
-puts "Inicio Planta"
-puts "Ciclos= #{nCiclos}"
+puts "Ciclos= #{i}"
 puts "Cerveza Total = "
 puts printSobrantes
