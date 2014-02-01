@@ -32,10 +32,11 @@ class Maquina
 		@prodAlmacen   = 0
 	end
 
-	#def to_s
-	#	puts "Maquina = <#{@nombreMaquina}>"
-	#	puts "Estado  = <#{@estado}>"
-	#end 
+	def to_s
+ 		puts "\nMaquina = <#{@nombreMaquina}>"
+ 		puts "Estado  = <#{@@NUM_ESTADO[@estado]}>"
+ 	end 
+
 
 	#Se encarga de realizar todo los movimientos posibles de una maquina
 	def procesar
@@ -103,23 +104,20 @@ class Maquina
 			else 0
 		end	
 	end				
-	def to_s
-		estado = @@NUM_ESTADO[self.estado]
-		"Estado = " + estado + " #@cantProduc #@prodAlmacen #@cantPA"
-	end
 end
 
 
 #Modulo que se encarga de la Cebada
 module Cebada
-
 	class CebadaInsuficiente < RuntimeError; end
 
 	@@cebadaTotal = 0
 
+
 	def maximoCebada(cebadaTotal)
 		@@cebadaTotal = cebadaTotal
 	end
+
 
 	def procesaInsumo
 		if @cebada > @@cebadaTotal
@@ -129,21 +127,23 @@ module Cebada
 		puts "#@@cebadaTotal"
 	end   
 
+
 	def printCebada
-		puts "Cebada Sobrante = #{@@cebadaTotal}"
+		puts "Cebada Sobrante   = #{@@cebadaTotal}"
 	end
 end
 
 
 #Modulo que se encarga de la Mezcla de Arroz/Maiz
 module Mezcla
-
 	class MezclaInsuficiente < RuntimeError; end
 	@@mezclaTotal = 0
+
 
 	def maximoMezcla(mezclaTotal)
 		@@mezclaTotal = mezclaTotal
 	end
+
 
 	def procesaInsumo
 		if @mezcla > @@mezclaTotal
@@ -153,22 +153,24 @@ module Mezcla
 		puts "#@@mezclaTotal"
 	end   
 
+
 	def printMezcla
-		puts "Mezcla Sobrante = #{@@mezclaTotal}"
+		puts "Mezcla Sobrante   = #{@@mezclaTotal}"
 	end
 end
 
 
 #Modulo que se encarga de la Lupulo
 module Lupulo
-
 	class LupuloInsuficiente < RuntimeError; end
 
 	@@lupuloTotal = 0
 
+
 	def maximoLupulo(lupuloTotal)
 		@@lupuloTotal = lupuloTotal
 	end
+
 
 	def procesaInsumo
 		if @lupulo > @@lupuloTotal
@@ -178,15 +180,15 @@ module Lupulo
 		puts "#@@lupuloTotal"
 	end  
 
+
 	def printLupulo
-		puts "Lupulo Sobrante = #{@@lupuloTotal}"
+		puts "Lupulo Sobrante   = #{@@lupuloTotal}"
 	end 
 end
 
 
 #Modulo que se encarga de la Levadura
 module Levadura
-
 	class LevaduraInsuficiente < RuntimeError; end
 
 	@@levaduraTotal = 0
@@ -194,6 +196,7 @@ module Levadura
 	def maximoLevadura(levaduraTotal)
 		@@levaduraTotal = levaduraTotal
 	end
+
 
 	def procesaInsumo
 		if @levadura > @@levaduraTotal
@@ -203,10 +206,12 @@ module Levadura
 		puts "#@@levaduraTotal"
 	end
 
+
 	def printLevadura
 		puts "Levadura Sobrante = #{@@levaduraTotal}"
 	end
 end
+
 
 #Modulo para inicializar los insumos de entrada
 module InicializarInsumos
@@ -247,6 +252,15 @@ class Silos < Maquina
 			procesaInsumo
 		end
 	end 
+
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "Cebada = <#{@cebada}>"
+ 		end
+ 	end
 end
 
 
@@ -258,6 +272,15 @@ class Molino < Maquina
 		super(nombreMaquina = "Molino", 
 		      cantMax = 100, cantPA = 100, desecho = 0.02, cicloMax = 1)	
 	end 
+
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 		end
+ 	end
 end
 
 
@@ -280,6 +303,16 @@ class PailaMezcla < Maquina
 			procesaInsumo
 		end
 	end
+
+
+	def to_s
+ 		super
+ 		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior     = <#{@prodAlmacen}>"
+ 			puts "Mezcla de Arroz/Maiz = <#{@mezcla}>"
+ 		end
+ 	end
 end
 
 
@@ -291,6 +324,15 @@ class Cuba < Maquina
 		super(nombreMaquina = "Cuba de Filtracion", 
 			  cantMax = 135, porcPA = 135, desecho = 0.35, cicloMax = 2)		
 	end 
+
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 		end
+  	end 
 end
 
 
@@ -314,6 +356,16 @@ class PailaCoccion < Maquina
 			procesaInsumo
 		end
 	end
+
+
+	def to_s
+ 		super
+ 		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 			puts "Lupulo           = <#{@lupulo}>"
+ 		end
+ 	end
 end
 
 
@@ -325,6 +377,15 @@ class Tanque < Maquina
 		super(nombreMaquina = "Tanque pre-Clarificador", 
 			  cantMax = 35, porcPA = 35, desecho = 0.01, cicloMax = 0)			
 	end 
+
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 		end
+ 	end
 end
 
 
@@ -337,6 +398,14 @@ class Enfriador < Maquina
 			  cantMax = 60, porcPA = 60, desecho = 0, cicloMax = 2)					
 	end 
 
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 		end
+ 	end
 end
 
 
@@ -361,6 +430,15 @@ class TCC < Maquina
 		end
 	end 
 
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 			puts "Levadura         = <#{@levadura}>"
+ 		end
+ 	end	
 end
 
 
@@ -373,6 +451,14 @@ class Filtro < Maquina
 			  cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)			
 	end 
 
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 		end
+ 	end
 end
 
 
@@ -385,12 +471,21 @@ class CervezaFiltrada < Maquina
 			  cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)				
 	end 
 
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 		end
+ 	end
 end
 
 
 #Clase de la Maquina "Llenadora y Tapadora"
 class Empacador < Maquina
 	
+
 	attr_accessor :hayProducto
 	def initialize
 		super(nombreMaquina = "Llenadora y Tapadora", 
@@ -415,6 +510,15 @@ class Empacador < Maquina
 		@hayProducto = false
 		return prodTotal
 	end
+
+
+	def to_s
+ 		super
+  		if (@estado == 1 || @estado == 4)
+ 			puts "Insumos"
+ 			puts "ProductoAnterior = <#{@prodAlmacen}>"
+ 		end
+ 	end	
 end
 
 #####################################################
@@ -500,21 +604,27 @@ catch(:escape) do
 				puts "\nSe termino la levadura mientras corrian los ciclos"
 				throw(:escape)
 			else
-				puts maq
+				maq.to_s
 			end
 
 		end
-		if (empacador.hayProducto)
-			prodTotal += empacador.obtenerTotal
-		end
 
-		puts "Producto total = ", prodTotal
+
+	    #Revisa si el empacador puede despachar cerveza
+	    #Se le suma a la cantidad final y se imprime la cantidad que se hizo en el ciclo
+	  	if (empacador.hayProducto)
+	 		producto   = empacador.obtenerTotal
+	 		prodTotal += 4*producto
+	 		puts "\nCerveza Salientes = #{4*producto}"
+	  	end
+
 		puts "\nFin Ciclo <#{i}>"
 		i += 1
 	end
 end
 
-#Print Final
-puts "Ciclos= #{i}"
-puts "Cerveza Total = "
+#Print del estado final de la planta
+puts "\nInicio Planta"
+puts "Ciclos            = #{i-1}"
+puts "Cerveza Total     = #{prodTotal}"
 puts printSobrantes
