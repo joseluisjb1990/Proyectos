@@ -32,10 +32,10 @@ class Maquina
 		@prodAlmacen   = 0
 	end
 
-	#def to_s
-	#	puts "Maquina = <#{@nombreMaquina}>"
-	#	puts "Estado  = <#{@estado}>"
-	#end 
+	def to_s
+		puts "\nMaquina = <#{@nombreMaquina}>"
+		puts "Estado  = <#{@@NUM_ESTADO[@estado]}>"
+	end 
 
 	#Se encarga de realizar todo los movimientos posibles de una maquina
 	def procesar
@@ -102,10 +102,6 @@ class Maquina
 			else 0
 		end	
 	end				
-	def to_s
-		estado = @@NUM_ESTADO[self.estado]
-		"Estado = " + estado + " #@cantProduc #@prodAlmacen #@cantPA"
-	end
 end
 
 
@@ -227,6 +223,15 @@ class Silos < Maquina
 			procesaInsumo
 		end
 	end 
+
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "Cebada           = <#{@cebada}>"
+		end
+	end
 end
 
 
@@ -238,6 +243,15 @@ class Molino < Maquina
 		super(nombreMaquina = "Molino", 
 		      cantMax = 100, cantPA = 100, desecho = 0.02, cicloMax = 1)	
 	end 
+
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+		end
+	end
 end
 
 
@@ -260,6 +274,16 @@ class PailaMezcla < Maquina
 			procesaInsumo
 		end
 	end
+
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior     = <#{@prodAlmacen}>"
+			puts "Mezcla de Arroz/Maiz = <#{@mezcla}>"
+		end
+	end
 end
 
 
@@ -270,6 +294,14 @@ class Cuba < Maquina
 	def initialize
 		super(nombreMaquina = "Cuba de Filtracion", 
 			  cantMax = 135, porcPA = 135, desecho = 0.35, cicloMax = 2)		
+	end
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+		end
 	end 
 end
 
@@ -283,9 +315,7 @@ class PailaCoccion < Maquina
 		super(nombreMaquina = "Paila de Coccion", 
 			  cantMax = 70, porcPA = 70*0.975, desecho = 0.1, cicloMax = 3)
 		@lupulo 	= 70*0.025
-				
 	end
-
 
 	def procesar
 		estadoAn = @estado
@@ -294,6 +324,16 @@ class PailaCoccion < Maquina
 			procesaInsumo
 		end
 	end
+
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+			puts "Lupulo           = <#{@lupulo}>"
+		end
+	end	
 end
 
 
@@ -305,6 +345,15 @@ class Tanque < Maquina
 		super(nombreMaquina = "Tanque pre-Clarificador", 
 			  cantMax = 35, porcPA = 35, desecho = 0.01, cicloMax = 0)			
 	end 
+
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+		end
+	end		
 end
 
 
@@ -317,6 +366,14 @@ class Enfriador < Maquina
 			  cantMax = 60, porcPA = 60, desecho = 0, cicloMax = 2)					
 	end 
 
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+		end
+	end	
 end
 
 
@@ -341,6 +398,15 @@ class TCC < Maquina
 		end
 	end 
 
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+			puts "Levadura         = <#{@levadura}>"
+		end
+	end	
 end
 
 
@@ -353,6 +419,13 @@ class Filtro < Maquina
 			  cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)			
 	end 
 
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+		end
+	end		
 end
 
 
@@ -365,12 +438,21 @@ class CervezaFiltrada < Maquina
 			  cantMax = 100, porcPA = 100, desecho = 0, cicloMax = 1)				
 	end 
 
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+		end
+	end	
 end
 
 
 #Clase de la Maquina "Llenadora y Tapadora"
 class Empacador < Maquina
 	
+
 	attr_accessor :hayProducto
 	def initialize
 		super(nombreMaquina = "Llenadora y Tapadora", 
@@ -395,6 +477,15 @@ class Empacador < Maquina
 		@hayProducto = false
 		return prodTotal
 	end
+
+
+	def to_s
+		super
+ 		if (@estado == 1 || @estado == 4)
+			puts "Insumos"
+			puts "ProductoAnterior = <#{@prodAlmacen}>"
+		end
+	end	
 end
 
 #####################################################
@@ -464,20 +555,23 @@ while i <= nCiclos
 	puts "\nInicio Ciclo <#{i}> \n\n"
 	for maq in maquinas
 		maq.procesar
-		puts maq
-
+		maq.to_s
 	end
+
+	#Revisa si el empacador puede despachar cerveza
+	#Se le suma a la cantidad final y se imprime la cantidad que se hizo en el ciclo
 	if (empacador.hayProducto)
-		prodTotal += empacador.obtenerTotal
+		producto   = empacador.obtenerTotal
+		prodTotal += 4*producto
+		puts "\nCerveza Salientesssssss = #{4*producto}"
 	end
 
-	puts "Producto total = ", prodTotal
 	puts "\nFin Ciclo <#{i}>"
 	i += 1
 end
 
-#Print Final
-puts "Inicio Planta"
-puts "Ciclos= #{nCiclos}"
-puts "Cerveza Total = "
+#Print del estado final de la planta
+puts "\nInicio Planta"
+puts "Ciclos        = #{i}"
+puts "Cerveza Total = #{prodTotal}"
 puts printSobrantes
